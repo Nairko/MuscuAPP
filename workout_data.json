@@ -1,0 +1,44 @@
+{
+    "sessions": [
+        {
+            "seance_id": "seance_1",
+            "timestamp": "2026-04-18",
+            "reps": {
+                "Tractions": [
+                    10,
+                    10,
+                    9,
+                    8
+                ],
+                "Pompes": [
+                    15,
+                    15,
+                    15,
+                    15
+                ],
+                "Tirage": [
+                    12,
+                    11,
+                    11,
+                    10
+                ],
+                "Dips": [
+                    12,
+                    12,
+                    11,
+                    11
+                ],
+                "Traction biceps": [
+                    7,
+                    7,
+                    7
+                ],
+                "Pompes diamant": [
+                    12,
+                    11,
+                    11
+                ]
+            }
+        }
+    ]
+}
