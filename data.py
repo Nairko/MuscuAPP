@@ -10,6 +10,7 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive",
 ]
 
+@st.cache_resource
 def get_sheet():
     creds = Credentials.from_service_account_info(
         st.secrets["gcp_service_account"],
@@ -17,30 +18,17 @@ def get_sheet():
     )
     client = gspread.authorize(creds)
     sh = client.open("workout_data")
-    
-    # Crée l'onglet "sessions" s'il n'existe pas
     try:
         worksheet = sh.worksheet("sessions")
     except gspread.exceptions.WorksheetNotFound:
         worksheet = sh.add_worksheet(title="sessions", rows=1000, cols=4)
         worksheet.append_row(["timestamp", "seance_id", "exercise", "reps"])
-    
     return worksheet
 
-# ─── FONCTIONS ────────────────────────────────────────────────────────────────
-def save_session(seance_id, reps_dict):
-    """Sauvegarde une séance — une ligne par exercice."""
-    worksheet = get_sheet()
-    timestamp = datetime.now().strftime("%Y-%m-%d")
-    for exercise, reps in reps_dict.items():
-        worksheet.append_row([timestamp, seance_id, exercise, json.dumps(reps)])
-
+@st.cache_data(ttl=60)
 def load_data():
-    """Charge toutes les sessions sous forme de dict {sessions: [...]}."""
     worksheet = get_sheet()
-    rows = worksheet.get_all_records()  # liste de dicts avec les headers comme clés
-    
-    # Regroupe par (timestamp, seance_id) pour reconstruire le format habituel
+    rows = worksheet.get_all_records()
     sessions = {}
     for row in rows:
         key = (row["timestamp"], row["seance_id"])
@@ -51,8 +39,15 @@ def load_data():
                 "reps": {}
             }
         sessions[key]["reps"][row["exercise"]] = json.loads(row["reps"])
-    
     return {"sessions": list(sessions.values())}
+
+def save_session(seance_id, reps_dict):
+    """Sauvegarde une séance — une ligne par exercice."""
+    worksheet = get_sheet()
+    timestamp = datetime.now().strftime("%Y-%m-%d")
+    for exercise, reps in reps_dict.items():
+        worksheet.append_row([timestamp, seance_id, exercise, json.dumps(reps)])
+    load_data.clear()  # vide le cache après sauvegarde
 
 def get_last_session_reps(seance_id, exercise_name):
     """Retourne la liste de reps de la dernière séance pour un exercice."""
