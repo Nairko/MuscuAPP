@@ -2,7 +2,3 @@ streamlit
 pandas
 matplotlib
 numpy
-plotly.express
-json
-os
-datetime
