@@ -82,7 +82,7 @@ with col_droite:
     if st.session_state.phase == "rest":
         import time
         placeholder = st.empty()
-        for i in range(seance["rest"], 0, -1):
+        for i in range(2, 0, -1):
             placeholder.markdown(f'<div class="timer">{i}s</div>', unsafe_allow_html=True)
             time.sleep(1)
         st.session_state.phase = "work"
